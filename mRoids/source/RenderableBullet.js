@@ -33,6 +33,6 @@ class RenderableBullet extends Renderable {
 
     get color() {
 
-        return "blue";
+        return "yellow";
     }
 }

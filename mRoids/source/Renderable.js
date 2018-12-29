@@ -75,7 +75,7 @@ class Renderable {
                 2 * Math.PI);
             this.tut.context.fill();
 
-            return this.innerRender();
+            return null;
         } catch (x) {
 
             return x;
@@ -152,11 +152,6 @@ class Renderable {
 
             return x;
         }
-    }
-
-    innerRender() {
-
-        return null;
     }
 
     // Return bool indicating if self was eliminated during its inner update.

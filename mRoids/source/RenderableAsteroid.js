@@ -12,6 +12,8 @@ class RenderableAsteroid extends Renderable {
         super(dRadius, 
             vectorPosition, 
             vectorVelocity);
+
+        this.spinFrequencyDivisor = 500 + Math.random() * 1000;
     }
 
     get type() {
@@ -22,6 +24,37 @@ class RenderableAsteroid extends Renderable {
     get color() {
 
         return "gray";
+    }
+
+    render() {
+
+        try {
+
+            this.tut.context.fillStyle = "rgb(100, 100, 100)";
+            this.tut.context.beginPath();
+            this.tut.context.arc(this.position.x, 
+                this.position.y, 
+                this.radius, 
+                0, 
+                2 * Math.PI);
+            this.tut.context.fill();
+
+            let dTheta = (new Date()).getTime() / this.spinFrequencyDivisor;
+
+            this.tut.context.fillStyle = "rgb(255, 255, 255, 0.2)";
+            this.tut.context.beginPath();
+            this.tut.context.arc(this.position.x + this.radius / 4 * Math.cos(dTheta), 
+                this.position.y + this.radius / 6 * Math.sin(dTheta), 
+                5 * this.radius / 6, 
+                0, 
+                2 * Math.PI);
+            this.tut.context.fill();
+
+            return null;
+        } catch (x) {
+
+            return x;
+        }
     }
 
     destroy(objectCollidee) {
@@ -50,6 +83,14 @@ class RenderableAsteroid extends Renderable {
                         this.tut.renderables.push(raNew);
                     }
                 }
+            }
+
+            if (objectCollidee.type === "RenderableBullet") {
+
+                // Explode.
+                let a = new Audio(`media/W${(Math.floor(Math.random() * 3) + 1)}.mp3`);
+                a.volume = 0.1;
+                a.play();
             }
 
             return null;

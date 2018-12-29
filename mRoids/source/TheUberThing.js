@@ -44,10 +44,81 @@ class TheUberThing {
             this.notHavingPlacedTheShip = true;
             this.notHavingTypedAKey = true;
 
+            // Attach keyboard handling events.
+            this.keyDownHandler = this.onKeyDown.bind(this);
+            window.addEventListener("keydown", 
+                this.keyDownHandler);
+            this.keyUpHandler = this.onKeyUp.bind(this);
+            window.addEventListener("keyup", 
+                this.keyUpHandler);
+
             return null;
         } catch (x) {
 
             return x;
+        }
+    }
+
+    onKeyDown(e) {
+
+        try {
+
+            if (this.notHavingTypedAKey) {
+
+
+                // Start the theme music.
+                let a = new Audio("media/background.mp3");
+                a.volume = 0.01;
+                a.loop = true;
+                a.play();
+            }
+            this.notHavingTypedAKey = false;
+          
+            if (e.key === "ArrowDown") {
+
+                this.downArrowDown = true;
+            } else if (e.key === "ArrowUp") {
+
+                this.upArrowDown = true;
+            } else if (e.key === "ArrowRight") {
+
+                this.rightArrowDown = true;
+            } else if (e.key === "ArrowLeft") {
+
+                this.leftArrowDown = true;
+            } else if (e.key === " ") {
+
+                this.spaceDown = true;
+            }
+        } catch (x) {
+
+            alert(x.message);
+        }
+    }
+
+    onKeyUp(e) {
+
+        try {
+
+            if (e.key === "ArrowDown") {
+
+                this.downArrowDown = false;
+            } else if (e.key === "ArrowUp") {
+
+                this.upArrowDown = false;
+            } else if (e.key === "ArrowRight") {
+
+                this.rightArrowDown = false;
+            } else if (e.key === "ArrowLeft") {
+
+                this.leftArrowDown = false;
+            } else if (e.key === " ") {
+
+                this.spaceDown = false;
+            }
+        } catch (x) {
+
+            alert(x.message);
         }
     }
 
@@ -165,31 +236,107 @@ class TheUberThing {
         }
     }
 
+    doKeyProcessing() {
+
+        try {
+
+            if (!this.theShip) {
+
+                return null;
+            }
+
+            let exceptionRet = null;
+            if (this.downArrowDown) {
+
+                exceptionRet = this.theShip.onDownArrow();
+                if (exceptionRet) {
+
+                    throw exceptionRet;
+                }
+            }
+            if (this.upArrowDown) {
+
+                exceptionRet = this.theShip.onUpArrow();
+                if (exceptionRet) {
+
+                    throw exceptionRet;
+                }
+            }
+            if (this.leftArrowDown) {
+
+                exceptionRet = this.theShip.onLeftArrow();
+                if (exceptionRet) {
+
+                    throw exceptionRet;
+                }
+            }
+            if (this.rightArrowDown) {
+
+                exceptionRet = this.theShip.onRightArrow();
+                if (exceptionRet) {
+
+                    throw exceptionRet;
+                }
+            }
+            if (this.spaceDown) {
+
+                exceptionRet = this.theShip.onSpace();
+                if (exceptionRet) {
+
+                    throw exceptionRet;
+                }
+            }
+            return null;
+        } catch (x) {
+
+            return x;
+        }
+    }
+
+    createNewAsteroid() {
+
+        try {
+
+            let vectorPosition = null;
+            if (Math.random() > 0.5) {
+
+                vectorPosition = new Vector(0,
+                    Math.random() * window.innerHeight);
+            } else {
+
+                vectorPosition = new Vector(Math.random() * window.innerWidth,
+                    0);
+            }
+
+            let renderableAsteroid = new RenderableAsteroid(INITIAL_ASTEROID_MIN_RADIUS +
+                Math.random() * INITIAL_ASTEROID_RADIUS_DIFFERENTIAL,
+                vectorPosition,
+                new Vector(Math.random() * INITIAL_ASTEROID_MAX_VELOCITY - INITIAL_ASTEROID_MAX_VELOCITY / 2,
+                    Math.random() * INITIAL_ASTEROID_MAX_VELOCITY - INITIAL_ASTEROID_MAX_VELOCITY / 2));
+            renderableAsteroid.tut = this;
+            this.renderables.push(renderableAsteroid);
+
+            return null;
+        } catch (x) {
+
+            return x;
+        }
+    }
+
     render() {
 
         try {
 
+            let exceptionRet = null;
+
             // Possibly create a new asteroid somewhere along the edge of the screen.
             if (Math.random() > 0.99) {
 
-                let vectorPosition = null;
-                if (Math.random() > 0.5) {
+                exceptionRet = this.createNewAsteroid();
+                if (exceptionRet) {
 
-                    vectorPosition = new Vector(0,
-                        Math.random() * window.innerHeight);
-                } else {
-
-                    vectorPosition = new Vector(Math.random() * window.innerWidth,
-                        0);
+                    throw exceptionRet;
                 }
-
-                let renderableAsteroid = new RenderableAsteroid(INITIAL_ASTEROID_MIN_RADIUS +
-                    Math.random() * INITIAL_ASTEROID_RADIUS_DIFFERENTIAL,
-                    vectorPosition,
-                    new Vector(Math.random() * INITIAL_ASTEROID_MAX_VELOCITY - INITIAL_ASTEROID_MAX_VELOCITY / 2,
-                        Math.random() * INITIAL_ASTEROID_MAX_VELOCITY - INITIAL_ASTEROID_MAX_VELOCITY / 2));
-                renderableAsteroid.tut = this;
-                this.renderables.push(renderableAsteroid);
             }
 
             // Asteroid creation count.
@@ -211,14 +358,15 @@ class TheUberThing {
 
             // Clear the display.
             this.context = this.canvas.getContext("2d");
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context.fillStyle = "rgba(0,0,0,0.3)";
+            this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
             // Loop over our renderables and update.
             this.renderables.forEach((objectRenderable) => {
 
                 try {
 
-                    let exceptionRet = objectRenderable.update(dNowMS,
+                    exceptionRet = objectRenderable.update(dNowMS,
                         dFrameMS);
                     if (exceptionRet) {
 
@@ -230,8 +378,18 @@ class TheUberThing {
                 }
             });
 
+            // Do the key processing, if applicable.
+            if (this.theShip) {
+
+                exceptionRet = this.doKeyProcessing();
+                if (exceptionRet) {
+
+                    throw exceptionRet;
+                }
+            }
+
             // Render background of stars.
-            let exceptionRet = this.renderStars();
+            exceptionRet = this.renderStars();
             if (exceptionRet) {
 
                 throw exceptionRet;
@@ -311,7 +469,7 @@ class TheUberThing {
                     this.context.fillText(this.theShip.score,
                         window.innerWidth / 2,
                         window.innerHeight - 100);
-                } else {
+                } else if (this.theScore) {
 
                     this.context.fillStyle = "red";
                     this.context.font = "64px Verdana";
